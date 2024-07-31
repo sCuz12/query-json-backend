@@ -11,6 +11,7 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
+	"github.com/rs/cors"
 	"github.com/sCuz12/celeritas"
 	"github.com/sCuz12/celeritas/mailer"
 	"github.com/sCuz12/celeritas/render"
@@ -70,7 +71,20 @@ func TestMain(m *testing.M) {
 func getRoutes() http.Handler {
 	mux := chi.NewRouter()
 	mux.Use(cel.SessionLoad)
+
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Allow your frontend origin
+        AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+        ExposedHeaders:   []string{"Link"},
+        AllowCredentials: true,
+        MaxAge:           300, // Maximum value for Access-Control-Max-Age header in seconds
+	})
+
+	mux.Use(cors.Handler)
+
 	fileServer := http.FileServer(http.Dir("./../public"))
+	
 	mux.Handle("/public/*", http.StripPrefix("/public", fileServer))
 	return mux
 }
