@@ -5,13 +5,19 @@ import (
 	"fmt"
 	"io"
 	"jql-server/data"
+	"jql-server/utils"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/sCuz12/celeritas"
 	aliasparser "github.com/sCuz12/go-json-query-parser"
 )
 
+const (
+	JSON_FILES_DIR = "public/uploads/json"
+)
 // Handlers is the type for handlers, and gives access to Celeritas and models
 type Handlers struct {
 	App    *celeritas.Celeritas
@@ -24,6 +30,10 @@ type QueryRequest struct {
 
 type QueryRecommendationResponse struct {
 	Data []string `json:"data"`
+}
+type ApiResponse struct {
+	Message string `json:"message"`
+	Status int `json:"status"` 
 }
 
 func (h *Handlers) JsonSearch(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +62,7 @@ func (h *Handlers) JsonSearch(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.App.ErrorLog.Printf("Failed to retrieve file: %v", err)
 		http.Error(w, "Failed to retrieve file", http.StatusBadRequest)
-		return
+		
 	}
 	defer file.Close()
 
@@ -118,7 +128,7 @@ func (h *Handlers) QueryRecommandations(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		h.App.ErrorLog.Printf("Failed to generate recommendations: %v", err)
 		http.Error(w, "Failed to generate recommendations", http.StatusBadRequest)
-		return
+		return				
 	}
 
 	response := QueryRecommendationResponse{
@@ -126,4 +136,57 @@ func (h *Handlers) QueryRecommandations(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.App.WriteJSON(w, http.StatusAccepted,response)
+}
+
+func (h *Handlers) StoreFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		h.App.ErrorLog.Println("Invalid request method", http.StatusMethodNotAllowed)
+	}
+
+	err := r.ParseMultipartForm(10 << 20) //10MB
+	fmt.Println(err)
+	if err != nil {
+		h.App.ErrorLog.Printf("Failed to parse multi form", err)
+		http.Error(w, "Invalid multiform data", http.StatusBadRequest)
+	}
+
+	file,handler,err := r.FormFile("json-file")
+
+	if err != nil {
+		h.App.ErrorLog.Printf("Failed to read the file")
+		h.App.WriteJSON(w,500,ApiResponse{Message: "Error reading file" , Status:http.StatusBadRequest})
+		return;
+	}
+
+	defer file.Close()
+
+	err = os.MkdirAll(JSON_FILES_DIR,os.ModePerm)
+
+	if err != nil {
+		h.App.ErrorLog.Printf("Failed to create folder")
+		http.Error(w,"Something went wrong",500)
+	}
+
+	//geneerate name
+
+	fileName := utils.GenerateUniqueFilename(handler.Filename)
+
+	dst,err := os.Create(filepath.Join(JSON_FILES_DIR,fileName))
+
+	if err != nil {
+		fmt.Println(err)
+		h.App.ErrorLog.Printf("Failed to create folder")
+		http.Error(w,"Something went wrong",500)	
+	}
+
+	//copy the uploaded file to the destination
+	_,err = io.Copy(dst,file)
+
+	if err != nil {
+		http.Error(w, "Failed to save file", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond to the client
+	fmt.Fprintf(w, "File uploaded successfully: %s\n",fileName)
 }

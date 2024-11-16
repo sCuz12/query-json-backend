@@ -1,3 +1,6 @@
 .idea
 coverage.out
 /vendor
+/db-data
+/public
+/tmp

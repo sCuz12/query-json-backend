@@ -23,13 +23,14 @@ type application struct {
 func main() {
 	c := initApplication()
 	go c.listenForShutdown()
+	
 	err := c.App.ListenAndServe()
 	c.App.ErrorLog.Println(err)
 }
 
 func (a *application) shutdown() {
 	// put any clean up tasks here
-
+	
 	// block until the WaitGroup is empty
 	a.wg.Wait()
 }
