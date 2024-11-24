@@ -1,0 +1,9 @@
+create_table("general_app_stats") {
+  t.Column("id", "integer", {primary: true})
+  t.Column("query", "string", {"size": 1024})
+  t.Column("execution_time_ms", "integer", {})
+  t.Column("file_name", "string", {"size": 255})
+  t.Column("success", "boolean", {})
+  t.Column("created_at", "timestamp", {})
+  t.Column("updated_at", "timestamp", {})
+}

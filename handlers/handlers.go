@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"jql-server/data"
+	modelData "jql-server/data"
 	"jql-server/utils"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/sCuz12/celeritas"
 	aliasparser "github.com/sCuz12/go-json-query-parser"
@@ -37,6 +39,8 @@ type ApiResponse struct {
 }
 
 func (h *Handlers) JsonSearch(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+
 	if r.Method != http.MethodPost {
 		h.App.ErrorLog.Println("Invalid request method", http.StatusMethodNotAllowed)
 	}
@@ -82,13 +86,30 @@ func (h *Handlers) JsonSearch(w http.ResponseWriter, r *http.Request) {
 	jsonParser.Parse(query)
 
 	results, total, err := jsonParser.ProcessQuery(string(jsonData))
-
+	
 	var data interface{}
 	err = json.Unmarshal([]byte(results), &data)
 
 	if err != nil {
 		h.App.ErrorLog.Println("Something went wrong")
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+	}
+
+	elapsedTime := time.Since(start)
+	
+	stats := modelData.AppStat{
+		Query: query,
+		ExecutionTimeMs: int(elapsedTime),
+		FileName: filename,
+		Success: true,
+	}
+	
+	_,err = h.Models.AppStat.Insert(stats)
+
+	if err != nil {
+		http.Error(w, "Error saving stats to database", http.StatusInternalServerError)
+        h.App.ErrorLog.Println("Error inserting stats:", err)
+        return
 	}
 
 	fmt.Println(total)
@@ -168,7 +189,6 @@ func (h *Handlers) StoreFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//geneerate name
-
 	fileName := utils.GenerateUniqueFilename(handler.Filename)
 
 	dst,err := os.Create(filepath.Join(JSON_FILES_DIR,fileName))

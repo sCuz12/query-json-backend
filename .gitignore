@@ -1,6 +1,7 @@
 .idea
 coverage.out
 /vendor
+/docker/db-data
 /db-data
 /public
 /tmp

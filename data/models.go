@@ -19,17 +19,23 @@ type Models struct {
 	// are easily accessible throughout the entire application
 	Users User
 	Tokens Token
+	AppStat AppStat
 }
 
 // New initializes the models package for use
 func New(databasePool *sql.DB) Models {
 	db = databasePool
-
+	var err error
+	fmt.Println(databasePool);
 	switch os.Getenv("DATABASE_TYPE") {
 	case "mysql", "mariadb":
 		upper, _ = mysql.New(databasePool)
 	case "postgres", "postgresql":
-		upper, _ = postgresql.New(databasePool)
+		upper, err  = postgresql.New(databasePool)
+		if err != nil {
+			fmt.Printf("Error initializing PostgreSQL session: %v\n", err)
+			os.Exit(1)
+		}
 	default:
 		// do nothing
 	}
