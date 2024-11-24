@@ -6,10 +6,12 @@ require (
 	github.com/CloudyKit/jet/v6 v6.1.0
 	github.com/alexedwards/scs/v2 v2.4.0
 	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-playground/validator/v10 v10.22.0
 	github.com/rs/cors v1.11.0
-	github.com/sCuz12/celeritas v0.1.0
-	github.com/sCuz12/go-json-query-parser v0.1.2
+	github.com/sCuz12/celeritas v1.0.0
+	github.com/sCuz12/go-json-query-parser v1.0.0
 	github.com/upper/db/v4 v4.2.1
+	golang.org/x/crypto v0.19.0
 )
 
 require (
@@ -36,7 +38,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.22.0 // indirect
 	github.com/go-rod/rod v0.101.8 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gobuffalo/envy v1.10.1 // indirect
@@ -109,7 +110,6 @@ require (
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
 	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e // indirect
 	github.com/studio-b12/gowebdav v0.0.0-20211109083228-3f8721cd4b6f // indirect
-	github.com/tsawler/celeritas v0.0.0-20220111160753-560e89bc68a4 // indirect
 	github.com/vanng822/css v1.0.1 // indirect
 	github.com/vanng822/go-premailer v1.20.1 // indirect
 	github.com/xhit/go-simple-mail/v2 v2.10.0 // indirect
@@ -118,7 +118,6 @@ require (
 	github.com/ysmood/leakless v0.7.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.17.0 // indirect
